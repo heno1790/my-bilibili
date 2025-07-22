@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--DAO层是直接与数据库进行交互的层,xml文件自然是写道这一层模块中了-->
+<mapper namespace="com.tt.dao.UserCoinDao">
+    <update id="updateUserCoin" parameterType="com.tt.domain.UserCoin">
+        update
+            t_user_coin
+        set
+            amount=#{amount},
+            updateTime=#{updateTime}
+        where
+            userId=#{userId}
+    </update>
+
+    <select id="getUserCoinsAmount" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select
+            amount
+        from
+            t_user_coin
+        where
+            userId=#{userId}
+    </select>
+</mapper>

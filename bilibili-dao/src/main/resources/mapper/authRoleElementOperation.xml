@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--DAO层是直接与数据库进行交互的层,xml文件自然是写道这一层模块中了-->
+<mapper namespace="com.tt.dao.AuthRoleElementOperationDao">
+
+    <resultMap id="AuthElementOperationResultMap" type="com.tt.domain.auth.AuthRoleElementOperation">
+        <id column="id" property="id"/>
+        <id column="roleId" property="roleId"/>
+        <id column="elementOperationId" property="elementOperationId"/>
+        <!--把对应的类封装成参数-->
+        <association property="authElementOperation" javaType="com.tt.domain.auth.AuthElementOperation">
+            <id column="elementName" property="elementName"/>
+            <id column="elementCode" property="elementCode"/>
+            <id column="operationType" property="operationType"/>
+        </association>
+    </resultMap>
+
+    <!--
+    返回值不需要AuthRoleElementOperation这个类中的所有属性,所以resultType,改为resultMap，
+    将此类中需要的属性封装成一个Map返回出去
+    -->
+    <select id="getRoleElementOperationByRoleIds" parameterType="java.util.Set" resultMap="AuthElementOperationResultMap">
+        select
+            areo.*,
+            aeo.elementName,
+            aeo.elementCode,
+            aeo.operationType
+        from
+            t_auth_role_element_operation areo
+            left join t_auth_element_operation aeo on areo.elementOperationId = aeo.id
+        where
+            areo.roleId in
+        <foreach collection="roleIdSet" item="roleId" index="index" open="(" close=")" separator=",">
+            #{roleId}
+        </foreach>
+    </select>
+</mapper>
+

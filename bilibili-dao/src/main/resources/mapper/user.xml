@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tt.dao.UserDao">
+    <insert id="addUser" parameterType="com.tt.domain.User" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            t_user(
+                phone,
+                email,
+                password,
+                salt,
+                createTime
+        )values (
+                #{phone},
+                #{email},
+                #{password},
+                #{salt},
+                #{createTime}
+                )
+    </insert>
+    <insert id="addUserInfo" parameterType="com.tt.domain.UserInfo">
+        insert into t_user_info(userId,
+                                nick,
+                                avatar,
+                                sign,
+                                gender,
+                                birth,
+                                createTime)
+        values (#{userId},
+                #{nick},
+                #{avatar},
+                #{sign},
+                #{gender},
+                #{birth},
+                #{createTime})
+    </insert>
+    <insert id="addFollowingGroup" parameterType="com.tt.domain.UserFollowing">
+        insert into t_following_group(userId, name, type, createTime)
+        VALUES (#{userId},
+                #{name},
+                #{type},
+                #{createTime})
+    </insert>
+
+    <update id="updateUsers" parameterType="com.tt.domain.User">
+        update
+            t_user
+        set
+        <if test="phone!=null and phone!=''">
+            phone=#{phone},
+        </if>
+        <if test="email!=null and email!=''">
+            email=#{email},
+        </if>
+        <if test="password!=null and password!=''">
+            password=#{password},
+        </if>
+            updateTime=#{updateTime}
+        where
+            id=#{id}
+    </update>
+
+    <update id="updateUserInfos" parameterType="com.tt.domain.UserInfo">
+        update
+            t_user_info
+        set
+        <if test="nick!=null and nick!=''">
+            nick=#{nick},
+        </if>
+        <if test="avatar!=null">
+            avatar=#{avatar},
+        </if>
+        <if test="sign!=null">
+            sign=#{sign},
+        </if>
+        <if test="birth!=null and birth!=''">
+            birth=#{birth},
+        </if>
+        <if test="gender!=null and gender!=''">
+            gender=#{gender},
+        </if>
+            updateTime=#{updateTime}
+        where
+            userId=#{userId}
+    </update>
+
+    <select id="getUserByPhone" parameterType="java.lang.String" resultType="com.tt.domain.User">
+        select
+            *
+        from
+            t_user
+        where
+            phone = #{phone}
+    </select>
+
+    <select id="getUserById" parameterType="java.lang.Long" resultType="com.tt.domain.User">
+        select
+            *
+        from
+            t_user
+        where
+            id = #{id}
+    </select>
+
+    <select id="getUserInfoById" parameterType="java.lang.Long" resultType="com.tt.domain.UserInfo">
+        select
+            *
+        from
+            t_user_info
+        where
+            userId = #{userId}
+    </select>
+
+    <select id="getSaltByUserId" resultType="java.lang.String">
+        select
+            salt
+        from
+            t_user
+        where
+            id=#{id}
+    </select>
+
+    <!--根据userIdList的多个userId查询多个UserInfo（用在查询用户关注）-->
+    <select id="getUserInfoByUserIds" resultType="com.tt.domain.UserInfo">
+        select
+            *
+        from
+            t_user_info
+        where
+            1=1
+        <if test="userIdList !=null and userIdList.size() > 0">
+            and userId in
+            <foreach collection="userIdList" item="userId" index="index" open="(" close=")" separator=",">
+                #{userId}
+            </foreach>
+        </if>
+    </select>
+
+    <!--查一查数据库里一共有多少条符合要求的数据(可能需要模糊查询也可能不用)-->
+    <select id="pageCountUserInfos" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select
+            count(1)
+        from
+            t_user_info
+        where
+            1=1
+            <if test="nick !=null and nick !='' ">
+                and nick like '%${nick}%'
+            </if>
+    </select>
+
+    <!--查询具体的数据列表返回给前端去分页展示,对于可能无传值的形参nick采用动态sql来实现-->
+    <select id="pageListUserInfos" resultType="com.tt.domain.UserInfo" parameterType="java.util.Map">
+        select
+            *
+        from
+            t_user_info
+        where
+            1=1
+            <if test="nick!=null and nick!=''">
+                and nick like '%${nick}%'
+            </if>
+        /*查完以后按主键id降序排序，最后再显示特定的一页*/
+        order by id desc
+        limit #{start},#{limit}
+    </select>
+
+    <delete id="deleteRefreshToken" parameterType="java.lang.Long">
+        delete from
+                   t_refresh_token
+               where
+                   userId=#{userId}
+    </delete>
+
+    <insert id="addRefreshToken">
+        insert into
+            t_refresh_token(
+            refreshToken,
+            userId,
+            createTime
+        )values(
+                   #{refreshToken},
+                   #{userId},
+                   #{createTime}
+               )
+    </insert>
+
+    <select id="getRefreshTokenDetail" parameterType="java.lang.String" resultType="com.tt.domain.RefreshTokenDetail">
+        select
+            *
+        from
+            t_refresh_token
+        where
+            refreshToken=#{refreshToken}
+    </select>
+
+    <delete id="deleteRefreshTokenByTokenId" parameterType="java.lang.Long">
+        delete from
+            t_refresh_token
+        where
+            id=#{id}
+    </delete>
+</mapper>

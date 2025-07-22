@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--DAO层是直接与数据库进行交互的层,xml文件自然是写道这一层模块中了-->
+<mapper namespace="com.tt.dao.UserRoleDao">
+    <insert id="addDefaultRole" parameterType="com.tt.domain.auth.UserRole" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            t_user_role(
+            userId,
+            roleId,
+            createTime
+        )values(
+                   #{userId},
+                   #{roleId},
+                   #{createTime}
+               )
+    </insert>
+    <insert id="addUserRole" parameterType="com.tt.domain.auth.UserRole">
+        insert into t_user_role (userId, roleId, createTime) VALUES (#{userId}, #{roleId}, #{createTime})
+    </insert>
+    <!--通过联表查询把角色的信息完整的一次性查询出来，需要在封装类内准备好冗余字段-->
+    <select id="getUserRoleByUserId" resultType="com.tt.domain.auth.UserRole" parameterType="java.lang.Long">
+        select ur.*,
+               ar.name roleName,
+               ar.code roleCode
+        from t_user_role ur
+                 left join t_auth_role ar on ur.roleId = ar.id
+        where ur.userId = #{userId}
+    </select>
+    <select id="getRoleByCode" resultType="java.lang.Long" parameterType="java.lang.String">
+        select
+            id
+        from
+            t_auth_role
+        where
+            code=#{roleCode}
+    </select>
+</mapper>
+
+        <!--一张表对应domain的一个实体类,对应一个Dao接口类和一个Service类以及一个xml文件，也即一个xml文件,一个Dao接口和一个Service只能操作一张表
+         ,他们和表是一一对应的关系，这样做符合开发的规范，不会乱-->

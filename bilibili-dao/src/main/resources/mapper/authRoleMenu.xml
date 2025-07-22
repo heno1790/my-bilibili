@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--DAO层是直接与数据库进行交互的层,xml文件自然是写道这一层模块中了-->
+<mapper namespace="com.tt.dao.AuthRoleMenuDao">
+
+    <resultMap id="AuthMenuResultMap" type="com.tt.domain.auth.AuthRoleMenu">
+        <id column="id" property="id"/>
+        <id column="roleId" property="roleId"/>
+        <id column="menuId" property="menuId"/>
+        <association property="authMenu" javaType="com.tt.domain.auth.AuthMenu">
+            <id column="name" property="name"/>
+            <id column="code" property="code"/>
+        </association>
+
+    </resultMap>
+
+    <!--
+    返回值不需要AuthRoleMenu这个类中的所有属性,所以resultType,改为resultMap，
+    将此类中需要的属性封装成一个Map返回出去,无关的属性在对象中保持为空，查的东西少了，提高效率
+    -->
+    <select id="getRoleMenusByRoleIds" parameterType="java.util.Set" resultMap="AuthMenuResultMap">
+        select
+            arm.*,
+            am.name,
+            am.code
+        from
+            t_auth_role_menu arm
+            left join t_auth_menu am on arm.menuId=am.id
+        where 
+            arm.roleId in
+        <foreach collection="roleIdSet" item="roleId" index="index" open="(" close=")" separator=",">
+            #{roleId}
+        </foreach>
+    </select>
+</mapper>
+

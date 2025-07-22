@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--DAO层是直接与数据库进行交互的层,xml文件自然是写道这一层模块中了-->
+<mapper namespace="com.tt.dao.FollowingGroupDao">
+    <insert id="addUserFollowingGroup" parameterType="com.tt.domain.FollowingGroup" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            t_following_group(
+                                userId,
+                                name,
+                                type,
+                                createTime
+                             )values(
+                                #{userId},
+                                #{name},
+                                #{type},
+                                #{createTime}
+                                            )
+    </insert>
+
+    <select id="getByType"  resultType="com.tt.domain.FollowingGroup">
+        select
+            *
+        from
+            t_following_group
+        where
+            userId = #{userId}
+        and
+            type = #{type}
+    </select>
+
+    <select id="getById" parameterType="java.lang.Long" resultType="com.tt.domain.FollowingGroup" >
+        select
+            *
+        from
+            t_following_group
+        where
+            id=#{id}
+    </select>
+
+    <select id="getByUserId" parameterType="java.lang.Long" resultType="com.tt.domain.FollowingGroup">
+        select *
+        from t_following_group
+        where userId = #{userId}
+    </select>
+
+    <select id="getUserFollowingGroups" resultType="com.tt.domain.FollowingGroup" parameterType="java.lang.Long">
+        select
+            *
+        from
+            t_following_group
+        where userId=#{userId}
+    </select>
+</mapper>
+
+
+<!--一张表对应domain的一个实体类,对应一个Dao接口类和一个Service类以及一个xml文件，也即一个xml文件,一个Dao接口和一个Service只能操作一张表
+,他们和表是一一对应的关系，这样做符合开发的规范，不会乱-->
